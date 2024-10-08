@@ -1,0 +1,65 @@
+---
+title: Delivery
+date: 2024-10-03 16:22:00 -05:00
+categories: [Reconnaisance, Kill Chain, Pentesting]
+tags: [nmap, kali, metasploit]  # TAG names should always be lowercase
+---
+
+# Delivery y Explotation
+esta etapa es crucial en el ciclo de vida de un ataque cibernetico, debido a que en esta fase se determinan como un atacante entrega sus armas al objetivo y aprovecha vulnerabilidades para obtener acceso no autorizado.
+
+# que es delivery?
+se refiere al proceso mediante el cual un atacante evnia su carga util (malware,exploit,etc) al objetivo. Esta carga util puede ser un archivo malicioso, un enlace a un sitio web comprometido, o cualaquier otro medio que permita al atacante inflitrarse en el sistema.
+
+# metodos
+1. pishing: envio de correos electronicos engañosos que contienen enlaces o archivos adjuntos maliciosos. Los usuarios son inducidos a abrir estos elementos, lo que permite la entrega del malware.
+2. explotacion de vulnerabilidades: utilizas vulnerabilidades en aplicaciones o sistemas para enviar codigo malicioso. por ejemplo, un atancante podria aprovechar una falla en una pagina web para inyectar un scvript.
+3. descarga maliciosa: un usuario hace clic en un enlace que lleva a la descarga de un software malicioso, a menudo disfrazado como un archivo legitimo.
+
+# que es exploitation?
+una vez que la carga util ha sido entregada al objetivo, la siguiente fase es la exploitation, durante esta etapa, el atancante ejecuta su codigo malicioso para aprovechar una vulnerabilidad y obtener acceso a los sitemas.
+
+## proceso de exploitation
+1. ejecucion del codigo: el atancante activa el codigo malicioso que se ha entregado, esto puede ser a traves de la ejecucion automatica de un archivo o mediante la activacion de un exploit que aprovecha una vulnerabilidad especifica.
+2. obtener acceso: si la explotacion tiene exito, el atacante obtiene acceso al sistema, esto puede permitir la ejecucion de comandos remotos, la exfiltracion de datos o incluso el control total del sistema.
+3. persistencia: en muchos casos, los atacantes intentan establecer metodos de persistencia, asegurandose de que su accceso no se vea interrumpido, esto podria incluir la instalacion de puertas traseras o la creacion de nuevas cuentas de usuario.
+
+**la etapa de delivery y exploitation, es un componente critico en el ciclo de vida del ataque cibernetico, comprender como se llevan a cabo estos procesos puede ayudar a las organizaciones a mejorar su postura de seguridad y protegerse contra posibles amenazas. La prevencion es clave, y estar informado es el primer paso para mitigar riesgos en el entorno digital.**
+
+
+
+# como conciliar malware
+
+para entender mejor como conciliar malware, se dara una serie de pasos para lograrlo:
+1. deteccion: utilizar herramientar de antivirus y antimalware para escanear el sistema y detectar infecciones. Mantener el software actualizado para garantizar la eficacia.
+2. contencion: desconecta el dispositivo de la red para evitar que el malware se propague, esto podria ayudar a proteger otros dispositivos y datos.
+3. analisis: investigar el tipo de malware(virus, rasonware, spyware,etc) y su comporatmiento, esto puede incluir la revision de registros y archivos afectados.
+4. eliminacion: utilizar herramientas de eliminacion de malware para mitigar la infeccion, debemos asegurarnos de seguir la instruccion especificas para el tipo de malware detectado.
+5. restauracion: restaurar el sistemas a un estado limpio utilizando copias de seguridad, si es necesario. resintalar software afectado y aplicar parches de seguridad.
+6. prevencion: implementar medidas de seguridad, como firewalls, educacion a los usuarios sobre buenas practicas seguras y mantenimiento regular del software de seguridad.
+7. monitoreo: establecer un sistema de monitoreo para detectar futuras infecciones y responder rapidamente a posibles amenazas.
+
+# revision de links
+
+## link 1
+segun el primer blog, el script vssown.vbs se utiliza en sistemas windows para crear una copia de sombra de volumen. ESto significa que toma una foto del sistema de archivos en un momento especifico. Estas copias son utiles por que permiten acceder a versiones anteriores de los archivos, incluso si han sido eliminados o estan bloqueados por el sistema.
+Cuando se ejcuta el script, utiliza una herramienta llamada WMI para crear esta copia y luego la monta como una unidad de solo lectura. ESto permite acceder a archivos importantes, como el NTDS.DIT, que es la base de datos de Active Directory. Desde ahi, se pueden recuperar datos como hashes de contraseñas usando otras herramientas.
+Ademas estas copias pueden ayudar a recuperar contraseñas de archivos que han sido borrados o estan bloqueados, lo cual es valiso durante pruebas de seguridad. Sin embargo, escrucial tener permiso del adminsitrador del sitema, ya que acceder a estas copias puede ser considerado invasivo.
+
+## link 2
+en este blog vssown.vbs se utiliza tambien para crear una copia de sombra de volumen en un controlador de dominio de windows. De esta copia, se pueden extraer los archivos NTDS y SYSTEM, lo que sirve para recueprar hashes de contraseñas de la base de datos del AD NTDS.DIT o acceder a otros archivos bloqueados. Este proceso se puede realizar incluso si el sistema operativo esta en funcionamiento y los archivos estan en uso.
+Una vez creada la copia de sombra los archivos NTDS y SYSTEM se pueden copiar a un sistema linux para su analisis. Se puede utilizar una herramienta de codigo abierto para interpretar el archivo NTDS y extraer los hashes. Es importante destacar que esta tecnica requiere privilegios adminsitrativos en el controlador de dominio y debe utilizarse solo para fines legitimos, como la recuperacion de contraseñas o al respuesta a indidentes.
+
+
+# proporcionar explicacion sobre el codigo de vssown.vbs
+el codigo de vssown.vbs es un script escrito en VBScript que permite a un usuario crear y gestionar Copias de sombra de volumen o VSC en un sistema Windows. utiliza Windows management instrumentation WMI para interactuar con el servicio de copia de sombra de volumen y realizar divesrsas tareas realacionadas a VSC:
+las secciones de codigo explican:
+1. importancion de bibliotecas, el script comienza importando las bibliotecas WMI necesarias y configurando algunas constantes que se usaran mas adelante.
+2. Funcion CreateVSC(), esta funcion crea una nueva copia de sombra y devuelve un identificador unico GUID de la nueva instantanea.
+3. funcion DEleteVSC(), esta funcion elimina una copia de sombra especifica medainte su GUID.
+4. Funcion GetVSCList(), recupera una lista de todas las copias de sombra en el sistema y las devuelve como un arreglo de objetos. Cada objeto contiene informacion sobre una VSC, como su GUID, hora de creacion y volumen de la copia de sombra.
+5. funcion MapAndCopy(), asigna una copia de sombra a una nueva letra de unidad y copia un archivo o directorio especifico desde la VSC a una nueva ubicacion.
+6. Funcion UnmapDrive(), desasigna una letra de unidad que anteriormente estaba asiganada a una copia de sombra.
+7. interafaz de linea de comandos, finalmente el script ofrece una interfaz sencilla que permite al usuario crear, eliminar y gestionar copias de sombra utilizando las funciones descritas.
+
+**Este script proporciona una forma conveniente de crear y gestionar copias de sombra de volumen en un sistema windows usando VBScript y WMI. Es util para tareas de respaldo y recuepracion, analisis forense y otras actividades que requieren acceso a versiones anteriores de archivos o al estado del sistema.**
