@@ -1,0 +1,37 @@
+---
+title: KILL CHAIN
+date: 2024-10-07 22:31:00 -05:00
+categories: [Reconnaisance, Kill Chain, Pentesting]
+tags: [nmap, kali, metasploit]  # TAG names should always be lowercase
+---
+
+# RECONNAISSANCE
+ la reconnnaissance o reconocimiento es la primera fase en el proceso de prueba de penetracion y se refiere a la recopilacion de informacion sobre un objetivo antes de realizar un ataque. Esta etapa es crucial, ya que permite a un atacante identificar posibles vulnerabilidades y puntos de entrada en el sistema o red objetivo. La informacion recopilada puede incluir direccion IP, nombres de dominio, sistemas operativos, servicios en ejecucion y potenciales debilidades.
+ Con la ayuda de NMAP podemos escanera puertos, identificar puertos abiertos en un host, detectar servicios osea identificar los servicios que se estan ejecutando en los puertos abiertos, podemos detectar sistemas operativos utilizando tecnicas de fingerprinting y podemos escanear vulnerabilidades ejecutando scripts que permitan buscar estas vulnerabilidades conocidas en los servicios.
+
+# WEAPONIZATION
+es la fase en la que el atancante prepara el ataque utilizando las vulnerabilidades identificas durante la fase de reconocimiento. Esta etapa implica crear o configurar un payload que puede ser utilizado para comprometer un sistemas objetivo. 
+Utilizando metasploit integrada con kali linux,podemos desarrollar y ejecutar exploits. 
+## enumaracion de usuarios SSH
+la enumeracion de usuarios SSH es un proceso que permite identificar que cuentas de usuario estan disponibles para el acceso de SSH en un sistema objetivo. Esta informacion es crucial, ya que ayuda a los atacantes a detemrinar que cuentas pueden ser objetivo de un ataque de fuerza bruta o de ingenieria social.
+
+## obtencion de contraseñas de usuarios encontrados
+una vez que han enumerado los usuarios, el siguiente paso es intentar obtener las contraseñas asociadas a esas cuentas. Esto comunmente se realiza mediante ataques de fuerza bruta o diccionario.
+
+# DElivery/ Exploitation
+la fase de delivery y exploitation se refiere a la forma en que un atacante entrega un payload a un sistema objetivo y aprovecha las vulnerabilidades para obtener acceso no autorizado. En este contexto, acceder a una maquina vulnerable como metasploitable a trabes de SSH es un ejemplo clasico de explotacion.
+
+## acceso via SSH a metasploitable
+es una maquina virutal diseñada especificamente para ser vulnerable y es comunmente utilizada para practucas habilidades de penetracion. Acceder a metasploite a traves de SSH implica varios pasos, desde la identificacion de la vulnerabilidad adecuada hastsa la explotacion efectiva.
+
+# INSTALLATION: DUMPING DE ARCHIVOS SAM Y SYSTEM
+la fase de installation en el contexto de pruebas de penetracion se refiere a la creacion y configuracion de un entorno que permite la explotacion de vulnerabilidades en un sistema objetivo. En este caso, se trata de ejecutar un script para realizar el dumping de los archivos SAM(Security Account Manager) y SYSTEM en un sistema Windows.
+Estos archivos son criticos ya que contiene informacion sobre las cuentas de usuario y sus contraseñas has, lo que permite a un atacante potencialmente obtener acceso a credenciales.
+## SAM
+almacena los hashes de las contraseñas de los usuarios en el sistema
+
+## SYSTEM
+contiene informacion sobre la configuracion del sistema, incluida la informacion de seguridad que es necesaria para acceder a los hashes de las contraseñas.
+
+# ACTIONS ON OBJETC: DATA EXFILTRATION DE ACRCHIVOS SAM Y SYSTEM
+la fase de actions se refiere a las acciones que un atacante realiza una vez que ha obtenido el acceso a un sistema. En este caso, implica la exfiltracion de datos de los archivos SAM y SYSTEM, asi como la extraccion y analisis de la informacion contenida en dichos archivos.
