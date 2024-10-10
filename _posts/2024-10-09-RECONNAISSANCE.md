@@ -1,6 +1,6 @@
 ---
 title: Reconnaissance
-date: 2024-10-03 16:22:00 -05:00
+date: 2024-10-09 16:22:00 -05:00
 categories: [Reconnaisance, Kill Chain, Pentesting]
 tags: [nmap, kali, metasploit]  # TAG names should always be lowercase
 ---
