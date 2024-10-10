@@ -1,0 +1,338 @@
+---
+title: Practica Calificada 
+date: 2024-10-10 11:39:00 -05:00
+categories: [Reconnaisance, Kill Chain, Pentesting]
+tags: [nmap, kali, metasploit]  # TAG names should always be lowercase
+---
+
+
+
+# Reconnaissance
+ la etapa de reconocimiento es la primera fase en un ataque de ciberseguridad o prueba de penetracion. En esta etapa recopila informacion sobre el objetivo para identificar vulnerabilidades y posibles puntos de entrada. Detallaremos de forma que se entienda mejor:
+
+ 1. objetivos de reconocimiento
+ * identificar el objetivo: conocer que sistemas, redes o aplicaciones e van a analizar.
+ * recopilar informacion: obtener datos relevantes sobre el objetivo, como direcciones IP, nombres de dominio, servicios en ejecucion.
+
+ 2. tipos de reconocimiento
+ * reconocimiento pasivo:
+ - descripcion: no interactua directamente con el objetivo
+ - fuentes: utiliza informacion de fuentes publicas, como redes sociales, sitios web, bases de datos filtradas.
+ 
+ *reconocimiento activo:
+ - descripcion: involucra interaccion directa con el objetivo
+ - herramientas: utiliza herramientas como nmap para escanear puertos y servicios.
+
+3. herramientas comunes de reconocimiento
+|Tipo|Herramienta| Funcion|
+|reconocimiento pasivo|Google| busqueda de informacion publica|
+|reconocimiento pasivo|WHOIS| informacion de dominio y propietario|
+|reconocimiento activo|nmap|escaneo de puertos y servicios|
+|reconocimiento activo| maltego | visualizacion de relacion de datos|
+
+4. proceso visual del reconocimiento
+![diagrama](/assets/images/diagrama.png)
+
+5. resultados de reconocimiento
+- lista de direcciones IP y nombres de dominio, la informacion basica sobre el objetivo.
+- servicios en ejecucion, que aplicaciones estan escuchando en que puertos.
+- vulnerabilidades potenciales, puntos debiles que pueden ser explotados en etapas posteriores.
+
+**ESTA ETAPA DE RECONOCIMIENTO ES CRUCIAL PARA EL EXITO DE CUALQUIER ATAQUE O PRUEBA DE PENETRACION, PERMITE A LOS ATACANTES ENTENDER MEJOR SU OBJETIVO Y PLANIFICAR SUS PROXIMOS PASOS DE MANERA MAS EFECTIVA. LA INFORMACION RECOPILADA EN ESTA FASE ES LA BASE SOBRE LA CUAL SE CONTRUYE LAS ESTRATEGIAS DE ATAQUE.**
+
+# Por que debemos ejecutar NMAP con privilegios de root?
+
+ejecutar Nmap como root es importante porque permite realizar escaneos mas completos y precisos, con privilegios de root, el nmap puede acceder a funciones de red que le permiten identificar todos los puertos abiertos, detectar servicios en ejecucion y conocer el sistema operativo de los dispositivos. Sin estos permisos, algunas funcionalidades estan limitadas y podrias no obtener toda la informacion que necesitas sobre la red que se esta analizando.
+
+# ¿Qué significan los flags -sS, -sT, -sV, -O en el escaneo de nmap?
+
+vamos a describir una a una:
+
+## -sS (SYN SCAN)
+este es un metodo de escaneo "stealth" que envia un paquete SYN (solicitud sin conexion) a los puertos del obejtivo. Si un puerto esta abierto, el dispositivo responde, pero nmap no completa la conexion, esto lo hace mas dificil de detecatar, como un escaneo sigiloso.
+
+## -sT (TCP Connect Scan)
+este metodo intenta conectarse completamente a los puertos. Completa el proceso de conexion, lo que lo hace mas facil de detectar, se usa cuando no tienes permisos especiales en el sistema.
+
+## -sV (SErvice Version Detection)
+este flag busca saber que servicios estan corriendo en los puertos abiertos y que versiones tienen. Asi puedes indentificar si hay software que podria ser vulnerable.
+
+## -O (OS detection)
+este flag intenta adivinar que sistema operativo esta usando el dispositivo. Analiza como responde a los paquetes que envias, lo que te ayuda a conocer mejor la red.
+
+# ¿Existe algún flag que permite hacer un escaneo involucrando todos los flags mencionados anteriormente?
+si existe, se pueden combinar varios flags en un solo comando en Nmap para realizar un escaneo mas completo. Se puede usar el siguiente comando:
+ ```bash 
+        sudo nmap -sS -sT -sV -O el ip target
+```
+pero sin embargo, debemos tener en cuenta que algunos de estos metodos son mutuamente excluyentes, normalmente, elegiriamos uno de los metodos de escaneo de puertos para evitar conflicos. 
+
+# Explicar el proceso de un handshake TCP.
+el handshake TCP es como una conversacion para establecer una conexion entre dos dispositivos, como una computadora y un servidor. Podemos describirlo mediante los siguientes pasos:
+1. paso 1: el cliente llama
+la computadora cliente envia un mensaje al servidor diciendo que quiere conectarse a esto se le conoce como SYN.
+2. paso 2: el servidor responde
+el servidor recibe el mensaje y responde con otro mensaje diciendo recibi tu solicitud y tambien quiero conectarme esto se conoce como SYN-ACK.
+3. paso 3: confirmacion final
+el cliente recibe la respuesta del servidor y dice, perfecto, estamos conectados esto se le conoce como ACK.
+
+una vez se completan los tres pasos, la conexion esta lista y ambos dispositivos pueden empezar a intercambiar datos.
+
+![syn](/assets/images/syn.png)
+
+# Según la pregunta anterior, ¿qué significa el flag -sS?
+el flag -sS en nmap se refiere a un SYN Scan, que es un tipo de escaneo de puertos.
+Syn scan es un metodo que envia un paquete SYN osea una solicitud de conexion a los puertos del objetivo para ver cuales estan abiertos. El escaneo Stealth no completa el proceso de conexion. Si un puerto esta abierto, el objetivo responde con un paquete SYN-ACK, y nmap envia un paquete RST para cerrar la conexion antes de completarla. De esta forma se hace mas dificil detectar por sistemas de seguridad, ya que no deja un rastro claro de una conexion establecida. Ademas este metodo es rapido y efectivo para identificar puertos abiertos sin alterar demasiado al sistema objetivo.
+
+# ¿Qué hace el flag --script?
+en nmap se utiliza para ejecutar scripts de NSE(Nmap Scripting Engine) durante el escaneo. Estos scripts permiten realizar tareas especificas y avanzadas que van mas alla de un simple escaneo de puertos. Puede detectar vulnerabilidades, recopilar informacion adicional sobre servicios, o realizar pruebas de seguridad especificas en los servicios de un puerto.
+Se puede espificar un script en particular o incluso un grupo de scripts para personalizar el escaneo segun tus necesidades. por ejemplo, podemos buscar vulnerabilidades en un servicio HTTP con el script:
+ ```bash 
+        sudo nmap --script http-vuln-* ip del target
+```
+
+
+
+# WEAPONIZATION
+la fase de weaponization armado es donde un atacante prepara las herramientas y metodos para llevar a cabo un ataque. se procede a describir de forma que se entienda mejor:
+
+1. que es weaponization?
+- es el proceso de crear o configurar un arma digital como un exploit o un payload que se utilizara para atacar un sistema especifico.
+- tiene como objetivo convertir la informacion recopilada en la fase de reconocimiento en una forma que pueda ser utilizada para comprometer el objetivo.
+
+2. Eleccion de herramientas
+- se debe seleccionar un software o herramientas que se alineen con las vulnerabilidades identificadas. por ejemplo: metasploit o malware, para explotar vulnerabilidades y para infectar el sistemas, respectivamente.
+
+3. creacion de un payload
+- un payload es el codigo que se ejecutara en el sistema objetivo. puede ser un virus, un script o una herramienta que permita el acceso remoto.
+
+4. combinar herramientas y payload
+- integrar el payload con el metodo de entrega, esto podria ser un archivo adjunto en un correo electronico o un enlace a un sitio web malicioso.
+
+## visualizacion del proceso de Waponization
+![visualizacion Weaponization](/assets/images/wea.png)
+
+
+
+podriamos dar un ejemplo practico:
+1. paso 1: recoger informacion sobre el software, versiones o configuraciones.
+2. paso 2: escoge el metasploit como herramienta
+3. paso 3: crea un payload que permite acceso remoto.
+4. paso 4: prepara un docuemnto de word que al abrirse ejecute el payload y comprometa 
+
+
+
+
+# Script de enumeracion de usuarios SSH
+el Script ssh_enumusers de metasploit es una herramienta diseñada para eumerar cuentas de usuario en un servidor SSH.
+el objetivo principal del script es intentar identificar que cuentas de usuario estan disponibles en un servidor SSH. esto sera util para preparar un ataqye posterior, como un ataque de fuerza bruta.
+
+## Funcionamiento
+el script evnia intentos de auntenticacion SSH a un conjunto de nombre de usuaro, puede ser una lista proporcionada por el usuario. Para cada nombre de usuario, intenta autenticar utilizando una contraseña vacia o una lista de contraseñas si se proporciona.
+Si el servidor responde con un mensaje que indica que la autenticacion ha fallada para un usuario especifico, el script puede inferir que el nombre de usuario es valido. Tambien tiene en cuenta las respuetas de errores para determinar si un usuario existe.
+
+## configuracion del Script
+1. abrir metasploit
+```bash 
+        msfconsole
+```
+2. cargar el Script
+```bash 
+        use auxiliary/scanner/ssh/ssh_enumusers
+```
+3. configurar las opciones
+establecer la direccion IP del objetivo
+```bash 
+        set RHOST <target_ip>
+```
+4. ejectuar el SCript
+```bash 
+        run
+```
+# resultados esperados
+al finalizar, el script proporcioanra una lista de nombres de usuario validos que han sido identificados en el servidor SSH.
+
+# condiciones de seguridad
+Este script debe ser utilizado solo en entornos donde tengas autorizacion, como en pruebas de penetracion controladas. 
+los intentos de enumeracion pueden ser detectados por sistemas de seguridad, asi que es importante ser consciente de las implicaciones.
+
+**El script ssh_enumusers es una herrameinta efectiva para la enumeracion de usuarios en servidores SSH, permitiendo a los pentesters identificar cuentas de usuario validos que pueden ser el objetivo de ataques posteriores.**
+
+# Script para la obtencion de contraseñas SSH
+el script ssh_login de metasploit se utiliza para llevar a cabo ataques de fuerza bruta y obtener contraseñas de usuarios en un servidor SSH. a continuacion se detalla su funcionamiento y caracteristicas:
+- su objetivo es de intentar autenticas usuarios en un servidor SSH utilizando una lista de nombres de usuario y contraseñas, su objetivo es acceder a cuentas de usuario validas.
+
+- el script envia intentos de inicio de sension al servidor SSH utilizando combinaciones de nombres de usuario y contraseñas, puede utilizar una lista de usuarios y una lista de contraseñas para realizar el ataque.
+-  si el servidor responde con un mensaje de autenticacion exitosa, el script identifica la combinacion de usuario y contraseña como valida. Si la auntenticacion falla, el script continua probando las siguientes combinaciones.
+
+# configuracion del script
+1. abrir metasploit
+```bash 
+        msfconsole
+```
+2. cargar el script
+```bash 
+        use auxiliary/scanner/ssh/ssh_login
+```
+3. configurar las opciones
+establecemos la direccion IP del objetivo
+```bash 
+        set RHOST <target_ip>
+```
+establecemos la lista de nombres de usuario
+```bash 
+        set USER_FILE <user_list.txt>
+```
+establecemos la lista de contraseñas
+```bash 
+        set PASS_FILE <pass_list.txt>
+```
+4. ejecutar el scvript
+```bash 
+        run
+```
+
+**este script ssh_login es una herramienta poderosa para la obtencion de contraseñas de usuarios en servidores SSH, permitiendo a los pentesters acceder a cuentas mediante ataqyes de fuerza bruta.**
+
+# resultados
+al finalizar el Script deberia proporcionarnos cualquier combinacion de usuario y contraseña que haya tenido exito en la autenticacion.
+
+
+
+# ¿En qué lenguaje de programación está hecho?
+Bueno el script auxiliary/scanner/ssh/ssh_enumusers de metasploit esta en el codigo de lenguaje de programacion Ruby. Metasploit utiliza Ruby como su lenguaje principal para la creacion de modulos y scripts, lo que permite personalizar y extender sus funcionalidades.
+
+
+# Delivery y Explotation
+esta etapa es crucial en el ciclo de vida de un ataque cibernetico, debido a que en esta fase se determinan como un atacante entrega sus armas al objetivo y aprovecha vulnerabilidades para obtener acceso no autorizado.
+
+# que es delivery?
+se refiere al proceso mediante el cual un atacante evnia su carga util (malware,exploit,etc) al objetivo. Esta carga util puede ser un archivo malicioso, un enlace a un sitio web comprometido, o cualaquier otro medio que permita al atacante inflitrarse en el sistema.
+
+# metodos
+1. pishing: envio de correos electronicos engañosos que contienen enlaces o archivos adjuntos maliciosos. Los usuarios son inducidos a abrir estos elementos, lo que permite la entrega del malware.
+2. explotacion de vulnerabilidades: utilizas vulnerabilidades en aplicaciones o sistemas para enviar codigo malicioso. por ejemplo, un atancante podria aprovechar una falla en una pagina web para inyectar un scvript.
+3. descarga maliciosa: un usuario hace clic en un enlace que lleva a la descarga de un software malicioso, a menudo disfrazado como un archivo legitimo.
+
+# que es exploitation?
+una vez que la carga util ha sido entregada al objetivo, la siguiente fase es la exploitation, durante esta etapa, el atancante ejecuta su codigo malicioso para aprovechar una vulnerabilidad y obtener acceso a los sitemas.
+
+## proceso de exploitation
+1. ejecucion del codigo: el atancante activa el codigo malicioso que se ha entregado, esto puede ser a traves de la ejecucion automatica de un archivo o mediante la activacion de un exploit que aprovecha una vulnerabilidad especifica.
+2. obtener acceso: si la explotacion tiene exito, el atacante obtiene acceso al sistema, esto puede permitir la ejecucion de comandos remotos, la exfiltracion de datos o incluso el control total del sistema.
+3. persistencia: en muchos casos, los atacantes intentan establecer metodos de persistencia, asegurandose de que su accceso no se vea interrumpido, esto podria incluir la instalacion de puertas traseras o la creacion de nuevas cuentas de usuario.
+
+**la etapa de delivery y exploitation, es un componente critico en el ciclo de vida del ataque cibernetico, comprender como se llevan a cabo estos procesos puede ayudar a las organizaciones a mejorar su postura de seguridad y protegerse contra posibles amenazas. La prevencion es clave, y estar informado es el primer paso para mitigar riesgos en el entorno digital.**
+
+
+
+# como conciliar malware
+
+para entender mejor como conciliar malware, se dara una serie de pasos para lograrlo:
+1. deteccion: utilizar herramientar de antivirus y antimalware para escanear el sistema y detectar infecciones. Mantener el software actualizado para garantizar la eficacia.
+2. contencion: desconecta el dispositivo de la red para evitar que el malware se propague, esto podria ayudar a proteger otros dispositivos y datos.
+3. analisis: investigar el tipo de malware(virus, rasonware, spyware,etc) y su comporatmiento, esto puede incluir la revision de registros y archivos afectados.
+4. eliminacion: utilizar herramientas de eliminacion de malware para mitigar la infeccion, debemos asegurarnos de seguir la instruccion especificas para el tipo de malware detectado.
+5. restauracion: restaurar el sistemas a un estado limpio utilizando copias de seguridad, si es necesario. resintalar software afectado y aplicar parches de seguridad.
+6. prevencion: implementar medidas de seguridad, como firewalls, educacion a los usuarios sobre buenas practicas seguras y mantenimiento regular del software de seguridad.
+7. monitoreo: establecer un sistema de monitoreo para detectar futuras infecciones y responder rapidamente a posibles amenazas.
+
+# revision de links
+
+## link 1
+segun el primer blog, el script vssown.vbs se utiliza en sistemas windows para crear una copia de sombra de volumen. ESto significa que toma una foto del sistema de archivos en un momento especifico. Estas copias son utiles por que permiten acceder a versiones anteriores de los archivos, incluso si han sido eliminados o estan bloqueados por el sistema.
+Cuando se ejcuta el script, utiliza una herramienta llamada WMI para crear esta copia y luego la monta como una unidad de solo lectura. ESto permite acceder a archivos importantes, como el NTDS.DIT, que es la base de datos de Active Directory. Desde ahi, se pueden recuperar datos como hashes de contraseñas usando otras herramientas.
+Ademas estas copias pueden ayudar a recuperar contraseñas de archivos que han sido borrados o estan bloqueados, lo cual es valiso durante pruebas de seguridad. Sin embargo, escrucial tener permiso del adminsitrador del sitema, ya que acceder a estas copias puede ser considerado invasivo.
+
+## link 2
+en este blog vssown.vbs se utiliza tambien para crear una copia de sombra de volumen en un controlador de dominio de windows. De esta copia, se pueden extraer los archivos NTDS y SYSTEM, lo que sirve para recueprar hashes de contraseñas de la base de datos del AD NTDS.DIT o acceder a otros archivos bloqueados. Este proceso se puede realizar incluso si el sistema operativo esta en funcionamiento y los archivos estan en uso.
+Una vez creada la copia de sombra los archivos NTDS y SYSTEM se pueden copiar a un sistema linux para su analisis. Se puede utilizar una herramienta de codigo abierto para interpretar el archivo NTDS y extraer los hashes. Es importante destacar que esta tecnica requiere privilegios adminsitrativos en el controlador de dominio y debe utilizarse solo para fines legitimos, como la recuperacion de contraseñas o al respuesta a indidentes.
+
+
+# proporcionar explicacion sobre el codigo de vssown.vbs
+el codigo de vssown.vbs es un script escrito en VBScript que permite a un usuario crear y gestionar Copias de sombra de volumen o VSC en un sistema Windows. utiliza Windows management instrumentation WMI para interactuar con el servicio de copia de sombra de volumen y realizar divesrsas tareas realacionadas a VSC:
+las secciones de codigo explican:
+1. importancion de bibliotecas, el script comienza importando las bibliotecas WMI necesarias y configurando algunas constantes que se usaran mas adelante.
+2. Funcion CreateVSC(), esta funcion crea una nueva copia de sombra y devuelve un identificador unico GUID de la nueva instantanea.
+3. funcion DEleteVSC(), esta funcion elimina una copia de sombra especifica medainte su GUID.
+4. Funcion GetVSCList(), recupera una lista de todas las copias de sombra en el sistema y las devuelve como un arreglo de objetos. Cada objeto contiene informacion sobre una VSC, como su GUID, hora de creacion y volumen de la copia de sombra.
+5. funcion MapAndCopy(), asigna una copia de sombra a una nueva letra de unidad y copia un archivo o directorio especifico desde la VSC a una nueva ubicacion.
+6. Funcion UnmapDrive(), desasigna una letra de unidad que anteriormente estaba asiganada a una copia de sombra.
+7. interafaz de linea de comandos, finalmente el script ofrece una interfaz sencilla que permite al usuario crear, eliminar y gestionar copias de sombra utilizando las funciones descritas.
+
+**Este script proporciona una forma conveniente de crear y gestionar copias de sombra de volumen en un sistema windows usando VBScript y WMI. Es util para tareas de respaldo y recuepracion, analisis forense y otras actividades que requieren acceso a versiones anteriores de archivos o al estado del sistema.**
+
+
+# Actions
+esta etapa del proceso nos enfocamos en interactuar con los objetos del sistema para extraer informacion critica, especificamente los archivos SAM 
+(Security account Manager) y SYSTEM de un controlador de dominio. Estos archivos son esenciales para el analisis de seguridad y la recuperacion de contraseñas.
+
+## proceso
+1. acceso a la copia de sombra: utilizamos el script Vssown.vbs para crear una copia de sombra de volumen del disco del controlador de dominio. Esto nos permite
+acceder a versiones anteriores de los archivos, incluso si estan bloqueados o en uso.
+2. montaje de la copia de sombra: una vez creada la copia de sombra, la montamos como una unidad de solo lectura. Esto nos da acceso a los archivos dentro de la copia
+sin alterar el sistema operativo en ejecucion.
+3. localizacion de archivos: navegamos a la ubicacion donde se encuentran los archivos SAM y SYSTEM. Generalmente estos archivos se encuentran en el directorio C:\Windows\System32\config.
+4. copiar archivos: utilizamos el script para copiar los archivos SAM y SYSTEM desde la copia de sombra a un sistema externo para su analisis posterior.
+
+
+# Describir qué son los archivos SAM y SYSTEM localizados en la carpeta Windows\System32\Config. 
+
+los archivos SAM SYSTEM son componentes crtiicos del sistema operativo Windows, ubicados en la carpeta C:\Windows\System32\Config. Cada uno desempeña un papel esencial en 
+la gestion de la seguridad y la configuracion del sistema.
+
+## archivo SAM (Security Account Manager)
+el archivo SAM almacena informacion sobre las cuentas de usuario y sus contraseñas. Especificamente, contiene los hashes de las contraseñas de los usuarios locales del sistema.
+Tiene como funcion proporcionar la capacidad de autenticacion, permitiendo que el sistema verifique las credenciales de los usuarios al inciar sesion.
+Este archivo es altamente protegido y no puede ser accedido directamente mientras el sistema operativo esta en funcionamiento. Los hashes alamacenados en el SAM son dificiles de revertir
+a las contraseñas originales, lo que añade una capa de seguridad.
+
+## archivo SYSTEM
+el archivo SYSTEM contiene informacion de configuracion del sistema, incluyendo detalles sobre la configuracion del registro de windows y los controladores de hardware.
+Proporciona la estructura necesaria para que el sistema operativo funcione correctamente, incluyendo la informacion sobre los usuarios y sus grupos, asi como las configuraciones de seguridad.
+y que relacion tendrian con la SAM, pues es esencial para interpretar correctamente los datos almacenados en el archivo SAM, ya que contiene la informacion de la politica de seguridad y
+la configuracion del sistema.
+
+***la extraccion y analisis de estos archivos son fundamentales en investigaciones forenses y pruebas de penetracion, ya que permiten a los analistas recuperar hashes de contraseñas y entender***
+***la estructura de seguridad del sistema. Sin embargo, acceder y manipular estos archivos sin autorizacion es ilegal y puede tener consecuencias graces. ***
+
+
+# ¿Cómo es posible extraer la información contenida en los archivos SAM y SYSTEM?
+
+la extraccion de informacion de los archivos SAM y SYSTEM implica varios pasos y herramientas especializadas.
+
+## proceso de extraccion 
+1. Crear una copia de sombra de volumne: utilizar un scrpit como vssown.vbs para crear una copia de sombra de volumen del sistema. Esto permite acceder a los archivos SAM y SYSTEM incluso si estan en uso.
+2. Montar la copia de sombra: montar la copia de sombra como una undiad de solo lectura, lo que permite acceder a los archivos sin alterar el sistema operativo.
+3. Copiar los archivos: navegar a C:\Windows\System32\Config y copiar los archivos SAM y SYSTEM desde la copia de sombra a un sistema externo para su analisis.
+4. Uso de herramientas especializadas: utilizar herramientas como pwdump, chntpw, o herramientas de analisis forense que pueden leer y extraer informacion de los archivos.
+- pwdumo: extrae los hashes de contraseñas del archivo SAM.
+- chntpw: permite modificar o restablecer contraseñas de cuentas de usuario.
+5. desencriptacion de hashes: para recuperar contraseñas, se pueden usar tecnicas de ataque como ataques de diccionario o fuerza bruta en los hashes extraidos, aunque esto puede ser un proceso
+intensivo y no siempre exitoso.
+
+***es crucial tener los permisos adecaudos antes de realizar estas acciones, ya que acceder a estos archivos sin autorizacion es ilegal.***
+***realizar estas acciones en un entorno controlado es esencial para evitar daños al sistema y cumplit con las normas de seguridad***
+
+# ¿Qué es lo que ha aprendido de esta sesión de laboratorio?
+
+en esta secion de laboratorio se han abordado diversos aspectos relacionados con la seguridad informatica y la recopilacion de informacion para pruebas de pentesting o pentetracion. a continuacion detallaremos:
+1. Reconocimiento: se aprendio la importancia de la fase de reconocimiento en la que se repoila informacion sobre el objetivo, utilizando herramientas como nmap para identificar servicios y sistemas operativos, y la necesidad de ejecutar estas herramientas con privilegios adecuados.
+2. Escaneo con nmap: se exploraron diferentes flags de nmap como -sS, -sT, -sV y -O, y su funcion en el escaneo de redes. Se podria decir que se aprendio las combinaciones de estos flags para realizar escaneos mas robustos.
+3. Handshake TCP: se esutdio el proceso de establecimeinto de conexiones en redes TCP, lo que fundamental para entender como funcionan las comunicaciones en red.
+4. Weaponization: se revisaron scripts especificos para enumerar usuarios y obtener contraseñas SSH, aprendienod cobre su implementacion en Rubby y su funcionamiento.
+5. Malware y persistencia: se discutio como se puede conciliar malware utilizando scripts como vssown.vbs, que permite acceder a copias de sombra para extraer informacion sensible.
+6. extraccion de archivos criticos: se aprendio sobre los archivos SAM y SYSTEM, su funcion en la gestion de usuarios en windows y como se pueden extraer utilizando tenicas forenses.
+7. aspectos eticos y legales: se enfatizo la importancia de realizar estas practicas en un entorno controlado y con los permisos adecuados para cumplir con las normativas de seguridad.
+
+# ¿Qué herramientas nuevas ha añadido a sus skills?
+este laboratorio se ha introducido varias herramientas y habilidades en el contexto de la ciberseguridad. 
+- uno de ellos es el NMAP y su diferentes flags, comprender estas tecnicas de escaneo fue algo nuevo para mi persona.
+- algunos scripts de metasploit para enumerar usuarios y obtener contraseñas en SSH.
+- VSSown.vbs conocer este script para manipular copias de sombra de sistema windows.
+- aprender la importancia de los archivos criticos SAM y SYSTEM en sistemas windows.
+
+# Otros temas que Ud. considere importante mencionar
+
+conforme fui averiguando y leyendo mas acerca del tema, me parecio interesante el tema de la etica y la legalidad en la ciberseguridad, la importancia de realizar pruebas de pentesting de manera etica con permisos adecaudos y respetando las leyes locales e internacionles.
+Y otro tema seria la seguridad en la redes como comprender los firewalls, IDS/IPS, tecnicas de segmentacion de red.
