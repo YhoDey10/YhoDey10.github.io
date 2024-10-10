@@ -33,4 +33,4 @@ esta es una tabla
 
 *este es un texto en cursiva*
 
-![figura 1](/assets/images/image.png)
+![alt text](/assets/images/image.png)
