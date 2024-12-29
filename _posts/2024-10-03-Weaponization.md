@@ -26,7 +26,7 @@ Listas
 
 esta es una tabla
 
-|columna 1|columna 2| columna 3|
+| columna 1 | columna 2 | columna 3 |
 
 
 **este es un texto en negrita**
